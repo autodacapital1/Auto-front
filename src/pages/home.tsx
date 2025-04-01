@@ -1,22 +1,31 @@
 import { useState } from 'react'
-import './App.css'
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import { Bell, Menu } from "lucide-react";
 
-function App() {
-  const [count, setCount] = useState(0)
+export const Home = () => {
 
   return (
     <div className="bg-gray-100 min-h-screen min-w-screen ">
       {/* Header */}
       <header className="flex justify-between items-center bg-white p-4 shadow-md">
-        <Menu className="w-6 h-6" />
+        <div>
+          <ul className="flex space-x-6">
+            <Menu className="w-6 h-6 text-gray-700" />
+            <li className="text-sm">Últimas Notícias</li>
+            <li className="text-sm">Quem Somos</li>
+            <li className="text-sm">About</li>
+          </ul>
+        </div>
+        
         <h1 className="text-lg font-bold">NINGUÉM PERGUNTOU</h1>
-        <Bell className="w-6 h-6" />
+        
+        <div className="flex items-center space-x-4">
+          <a href="" className="text-sm text-blue-500 hover:text-blue-700">Login</a>
+          <Bell className="w-6 h-6 text-gray-700" />
+        </div>
       </header>
       
       {/* Section Title */}
@@ -92,5 +101,3 @@ function App() {
     </div>
   )
 }
-
-export default App
