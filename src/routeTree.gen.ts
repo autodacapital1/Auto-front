@@ -13,18 +13,63 @@ import { createFileRoute } from '@tanstack/react-router'
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as DashboardIndexImport } from './routes/dashboard/index'
+import { Route as DashboardAuthenticatedRouteImport } from './routes/dashboard/_authenticated/route'
 
 // Create Virtual Routes
 
+const DashboardImport = createFileRoute('/dashboard')()
 const IndexLazyImport = createFileRoute('/')()
+const DashboardAuthenticatedNewsLazyImport = createFileRoute(
+  '/dashboard/_authenticated/news',
+)()
+const DashboardAuthenticatedHomeLazyImport = createFileRoute(
+  '/dashboard/_authenticated/home',
+)()
 
 // Create/Update Routes
+
+const DashboardRoute = DashboardImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const IndexLazyRoute = IndexLazyImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRoute,
 } as any).lazy(() => import('./routes/index.lazy').then((d) => d.Route))
+
+const DashboardIndexRoute = DashboardIndexImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DashboardRoute,
+} as any)
+
+const DashboardAuthenticatedRouteRoute =
+  DashboardAuthenticatedRouteImport.update({
+    id: '/_authenticated',
+    getParentRoute: () => DashboardRoute,
+  } as any)
+
+const DashboardAuthenticatedNewsLazyRoute =
+  DashboardAuthenticatedNewsLazyImport.update({
+    id: '/news',
+    path: '/news',
+    getParentRoute: () => DashboardAuthenticatedRouteRoute,
+  } as any).lazy(() =>
+    import('./routes/dashboard/_authenticated/news.lazy').then((d) => d.Route),
+  )
+
+const DashboardAuthenticatedHomeLazyRoute =
+  DashboardAuthenticatedHomeLazyImport.update({
+    id: '/home',
+    path: '/home',
+    getParentRoute: () => DashboardAuthenticatedRouteRoute,
+  } as any).lazy(() =>
+    import('./routes/dashboard/_authenticated/home.lazy').then((d) => d.Route),
+  )
 
 // Populate the FileRoutesByPath interface
 
@@ -37,39 +82,131 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexLazyImport
       parentRoute: typeof rootRoute
     }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardImport
+      parentRoute: typeof rootRoute
+    }
+    '/dashboard/_authenticated': {
+      id: '/dashboard/_authenticated'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardAuthenticatedRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/': {
+      id: '/dashboard/'
+      path: '/'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof DashboardIndexImport
+      parentRoute: typeof DashboardImport
+    }
+    '/dashboard/_authenticated/home': {
+      id: '/dashboard/_authenticated/home'
+      path: '/home'
+      fullPath: '/dashboard/home'
+      preLoaderRoute: typeof DashboardAuthenticatedHomeLazyImport
+      parentRoute: typeof DashboardAuthenticatedRouteImport
+    }
+    '/dashboard/_authenticated/news': {
+      id: '/dashboard/_authenticated/news'
+      path: '/news'
+      fullPath: '/dashboard/news'
+      preLoaderRoute: typeof DashboardAuthenticatedNewsLazyImport
+      parentRoute: typeof DashboardAuthenticatedRouteImport
+    }
   }
 }
 
 // Create and export the route tree
 
+interface DashboardAuthenticatedRouteRouteChildren {
+  DashboardAuthenticatedHomeLazyRoute: typeof DashboardAuthenticatedHomeLazyRoute
+  DashboardAuthenticatedNewsLazyRoute: typeof DashboardAuthenticatedNewsLazyRoute
+}
+
+const DashboardAuthenticatedRouteRouteChildren: DashboardAuthenticatedRouteRouteChildren =
+  {
+    DashboardAuthenticatedHomeLazyRoute: DashboardAuthenticatedHomeLazyRoute,
+    DashboardAuthenticatedNewsLazyRoute: DashboardAuthenticatedNewsLazyRoute,
+  }
+
+const DashboardAuthenticatedRouteRouteWithChildren =
+  DashboardAuthenticatedRouteRoute._addFileChildren(
+    DashboardAuthenticatedRouteRouteChildren,
+  )
+
+interface DashboardRouteChildren {
+  DashboardAuthenticatedRouteRoute: typeof DashboardAuthenticatedRouteRouteWithChildren
+  DashboardIndexRoute: typeof DashboardIndexRoute
+}
+
+const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardAuthenticatedRouteRoute:
+    DashboardAuthenticatedRouteRouteWithChildren,
+  DashboardIndexRoute: DashboardIndexRoute,
+}
+
+const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
+  DashboardRouteChildren,
+)
+
 export interface FileRoutesByFullPath {
   '/': typeof IndexLazyRoute
+  '/dashboard': typeof DashboardAuthenticatedRouteRouteWithChildren
+  '/dashboard/': typeof DashboardIndexRoute
+  '/dashboard/home': typeof DashboardAuthenticatedHomeLazyRoute
+  '/dashboard/news': typeof DashboardAuthenticatedNewsLazyRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexLazyRoute
+  '/dashboard': typeof DashboardIndexRoute
+  '/dashboard/home': typeof DashboardAuthenticatedHomeLazyRoute
+  '/dashboard/news': typeof DashboardAuthenticatedNewsLazyRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexLazyRoute
+  '/dashboard': typeof DashboardRouteWithChildren
+  '/dashboard/_authenticated': typeof DashboardAuthenticatedRouteRouteWithChildren
+  '/dashboard/': typeof DashboardIndexRoute
+  '/dashboard/_authenticated/home': typeof DashboardAuthenticatedHomeLazyRoute
+  '/dashboard/_authenticated/news': typeof DashboardAuthenticatedNewsLazyRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/dashboard/'
+    | '/dashboard/home'
+    | '/dashboard/news'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/dashboard' | '/dashboard/home' | '/dashboard/news'
+  id:
+    | '__root__'
+    | '/'
+    | '/dashboard'
+    | '/dashboard/_authenticated'
+    | '/dashboard/'
+    | '/dashboard/_authenticated/home'
+    | '/dashboard/_authenticated/news'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexLazyRoute: typeof IndexLazyRoute
+  DashboardRoute: typeof DashboardRouteWithChildren
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexLazyRoute: IndexLazyRoute,
+  DashboardRoute: DashboardRouteWithChildren,
 }
 
 export const routeTree = rootRoute
@@ -82,11 +219,39 @@ export const routeTree = rootRoute
     "__root__": {
       "filePath": "__root.tsx",
       "children": [
-        "/"
+        "/",
+        "/dashboard"
       ]
     },
     "/": {
       "filePath": "index.lazy.tsx"
+    },
+    "/dashboard": {
+      "filePath": "dashboard/_authenticated",
+      "children": [
+        "/dashboard/_authenticated",
+        "/dashboard/"
+      ]
+    },
+    "/dashboard/_authenticated": {
+      "filePath": "dashboard/_authenticated/route.tsx",
+      "parent": "/dashboard",
+      "children": [
+        "/dashboard/_authenticated/home",
+        "/dashboard/_authenticated/news"
+      ]
+    },
+    "/dashboard/": {
+      "filePath": "dashboard/index.tsx",
+      "parent": "/dashboard"
+    },
+    "/dashboard/_authenticated/home": {
+      "filePath": "dashboard/_authenticated/home.lazy.tsx",
+      "parent": "/dashboard/_authenticated"
+    },
+    "/dashboard/_authenticated/news": {
+      "filePath": "dashboard/_authenticated/news.lazy.tsx",
+      "parent": "/dashboard/_authenticated"
     }
   }
 }
