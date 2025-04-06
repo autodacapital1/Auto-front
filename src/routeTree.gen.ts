@@ -15,6 +15,8 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Route as rootRoute } from './routes/__root'
 import { Route as DashboardIndexImport } from './routes/dashboard/index'
 import { Route as DashboardAuthenticatedRouteImport } from './routes/dashboard/_authenticated/route'
+import { Route as authAuthRouteImport } from './routes/(auth)/auth/route'
+import { Route as authAuthLoginImport } from './routes/(auth)/auth/login'
 
 // Create Virtual Routes
 
@@ -53,6 +55,12 @@ const DashboardAuthenticatedRouteRoute =
     getParentRoute: () => DashboardRoute,
   } as any)
 
+const authAuthRouteRoute = authAuthRouteImport.update({
+  id: '/(auth)/auth',
+  path: '/auth',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const DashboardAuthenticatedNewsLazyRoute =
   DashboardAuthenticatedNewsLazyImport.update({
     id: '/news',
@@ -71,6 +79,12 @@ const DashboardAuthenticatedHomeLazyRoute =
     import('./routes/dashboard/_authenticated/home.lazy').then((d) => d.Route),
   )
 
+const authAuthLoginRoute = authAuthLoginImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => authAuthRouteRoute,
+} as any)
+
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
@@ -80,6 +94,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexLazyImport
+      parentRoute: typeof rootRoute
+    }
+    '/(auth)/auth': {
+      id: '/(auth)/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof authAuthRouteImport
       parentRoute: typeof rootRoute
     }
     '/dashboard': {
@@ -103,6 +124,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardIndexImport
       parentRoute: typeof DashboardImport
     }
+    '/(auth)/auth/login': {
+      id: '/(auth)/auth/login'
+      path: '/login'
+      fullPath: '/auth/login'
+      preLoaderRoute: typeof authAuthLoginImport
+      parentRoute: typeof authAuthRouteImport
+    }
     '/dashboard/_authenticated/home': {
       id: '/dashboard/_authenticated/home'
       path: '/home'
@@ -121,6 +149,18 @@ declare module '@tanstack/react-router' {
 }
 
 // Create and export the route tree
+
+interface authAuthRouteRouteChildren {
+  authAuthLoginRoute: typeof authAuthLoginRoute
+}
+
+const authAuthRouteRouteChildren: authAuthRouteRouteChildren = {
+  authAuthLoginRoute: authAuthLoginRoute,
+}
+
+const authAuthRouteRouteWithChildren = authAuthRouteRoute._addFileChildren(
+  authAuthRouteRouteChildren,
+)
 
 interface DashboardAuthenticatedRouteRouteChildren {
   DashboardAuthenticatedHomeLazyRoute: typeof DashboardAuthenticatedHomeLazyRoute
@@ -155,15 +195,19 @@ const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexLazyRoute
+  '/auth': typeof authAuthRouteRouteWithChildren
   '/dashboard': typeof DashboardAuthenticatedRouteRouteWithChildren
   '/dashboard/': typeof DashboardIndexRoute
+  '/auth/login': typeof authAuthLoginRoute
   '/dashboard/home': typeof DashboardAuthenticatedHomeLazyRoute
   '/dashboard/news': typeof DashboardAuthenticatedNewsLazyRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexLazyRoute
+  '/auth': typeof authAuthRouteRouteWithChildren
   '/dashboard': typeof DashboardIndexRoute
+  '/auth/login': typeof authAuthLoginRoute
   '/dashboard/home': typeof DashboardAuthenticatedHomeLazyRoute
   '/dashboard/news': typeof DashboardAuthenticatedNewsLazyRoute
 }
@@ -171,9 +215,11 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexLazyRoute
+  '/(auth)/auth': typeof authAuthRouteRouteWithChildren
   '/dashboard': typeof DashboardRouteWithChildren
   '/dashboard/_authenticated': typeof DashboardAuthenticatedRouteRouteWithChildren
   '/dashboard/': typeof DashboardIndexRoute
+  '/(auth)/auth/login': typeof authAuthLoginRoute
   '/dashboard/_authenticated/home': typeof DashboardAuthenticatedHomeLazyRoute
   '/dashboard/_authenticated/news': typeof DashboardAuthenticatedNewsLazyRoute
 }
@@ -182,18 +228,28 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/auth'
     | '/dashboard'
     | '/dashboard/'
+    | '/auth/login'
     | '/dashboard/home'
     | '/dashboard/news'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/dashboard/home' | '/dashboard/news'
+  to:
+    | '/'
+    | '/auth'
+    | '/dashboard'
+    | '/auth/login'
+    | '/dashboard/home'
+    | '/dashboard/news'
   id:
     | '__root__'
     | '/'
+    | '/(auth)/auth'
     | '/dashboard'
     | '/dashboard/_authenticated'
     | '/dashboard/'
+    | '/(auth)/auth/login'
     | '/dashboard/_authenticated/home'
     | '/dashboard/_authenticated/news'
   fileRoutesById: FileRoutesById
@@ -201,11 +257,13 @@ export interface FileRouteTypes {
 
 export interface RootRouteChildren {
   IndexLazyRoute: typeof IndexLazyRoute
+  authAuthRouteRoute: typeof authAuthRouteRouteWithChildren
   DashboardRoute: typeof DashboardRouteWithChildren
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexLazyRoute: IndexLazyRoute,
+  authAuthRouteRoute: authAuthRouteRouteWithChildren,
   DashboardRoute: DashboardRouteWithChildren,
 }
 
@@ -220,11 +278,18 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/(auth)/auth",
         "/dashboard"
       ]
     },
     "/": {
       "filePath": "index.lazy.tsx"
+    },
+    "/(auth)/auth": {
+      "filePath": "(auth)/auth/route.tsx",
+      "children": [
+        "/(auth)/auth/login"
+      ]
     },
     "/dashboard": {
       "filePath": "dashboard/_authenticated",
@@ -244,6 +309,10 @@ export const routeTree = rootRoute
     "/dashboard/": {
       "filePath": "dashboard/index.tsx",
       "parent": "/dashboard"
+    },
+    "/(auth)/auth/login": {
+      "filePath": "(auth)/auth/login.tsx",
+      "parent": "/(auth)/auth"
     },
     "/dashboard/_authenticated/home": {
       "filePath": "dashboard/_authenticated/home.lazy.tsx",
