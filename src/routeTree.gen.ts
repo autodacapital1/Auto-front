@@ -22,6 +22,7 @@ import { Route as authAuthLoginImport } from './routes/(auth)/auth/login'
 
 const DashboardImport = createFileRoute('/dashboard')()
 const IndexLazyImport = createFileRoute('/')()
+const NewsIdLazyImport = createFileRoute('/news/$id')()
 const DashboardAuthenticatedNewsLazyImport = createFileRoute(
   '/dashboard/_authenticated/news',
 )()
@@ -48,6 +49,12 @@ const DashboardIndexRoute = DashboardIndexImport.update({
   path: '/',
   getParentRoute: () => DashboardRoute,
 } as any)
+
+const NewsIdLazyRoute = NewsIdLazyImport.update({
+  id: '/news/$id',
+  path: '/news/$id',
+  getParentRoute: () => rootRoute,
+} as any).lazy(() => import('./routes/news/$id.lazy').then((d) => d.Route))
 
 const DashboardAuthenticatedRouteRoute =
   DashboardAuthenticatedRouteImport.update({
@@ -116,6 +123,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardAuthenticatedRouteImport
       parentRoute: typeof DashboardRoute
+    }
+    '/news/$id': {
+      id: '/news/$id'
+      path: '/news/$id'
+      fullPath: '/news/$id'
+      preLoaderRoute: typeof NewsIdLazyImport
+      parentRoute: typeof rootRoute
     }
     '/dashboard/': {
       id: '/dashboard/'
@@ -197,6 +211,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexLazyRoute
   '/auth': typeof authAuthRouteRouteWithChildren
   '/dashboard': typeof DashboardAuthenticatedRouteRouteWithChildren
+  '/news/$id': typeof NewsIdLazyRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/auth/login': typeof authAuthLoginRoute
   '/dashboard/home': typeof DashboardAuthenticatedHomeLazyRoute
@@ -207,6 +222,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexLazyRoute
   '/auth': typeof authAuthRouteRouteWithChildren
   '/dashboard': typeof DashboardIndexRoute
+  '/news/$id': typeof NewsIdLazyRoute
   '/auth/login': typeof authAuthLoginRoute
   '/dashboard/home': typeof DashboardAuthenticatedHomeLazyRoute
   '/dashboard/news': typeof DashboardAuthenticatedNewsLazyRoute
@@ -218,6 +234,7 @@ export interface FileRoutesById {
   '/(auth)/auth': typeof authAuthRouteRouteWithChildren
   '/dashboard': typeof DashboardRouteWithChildren
   '/dashboard/_authenticated': typeof DashboardAuthenticatedRouteRouteWithChildren
+  '/news/$id': typeof NewsIdLazyRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/(auth)/auth/login': typeof authAuthLoginRoute
   '/dashboard/_authenticated/home': typeof DashboardAuthenticatedHomeLazyRoute
@@ -230,6 +247,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/dashboard'
+    | '/news/$id'
     | '/dashboard/'
     | '/auth/login'
     | '/dashboard/home'
@@ -239,6 +257,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/dashboard'
+    | '/news/$id'
     | '/auth/login'
     | '/dashboard/home'
     | '/dashboard/news'
@@ -248,6 +267,7 @@ export interface FileRouteTypes {
     | '/(auth)/auth'
     | '/dashboard'
     | '/dashboard/_authenticated'
+    | '/news/$id'
     | '/dashboard/'
     | '/(auth)/auth/login'
     | '/dashboard/_authenticated/home'
@@ -259,12 +279,14 @@ export interface RootRouteChildren {
   IndexLazyRoute: typeof IndexLazyRoute
   authAuthRouteRoute: typeof authAuthRouteRouteWithChildren
   DashboardRoute: typeof DashboardRouteWithChildren
+  NewsIdLazyRoute: typeof NewsIdLazyRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexLazyRoute: IndexLazyRoute,
   authAuthRouteRoute: authAuthRouteRouteWithChildren,
   DashboardRoute: DashboardRouteWithChildren,
+  NewsIdLazyRoute: NewsIdLazyRoute,
 }
 
 export const routeTree = rootRoute
@@ -279,7 +301,8 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/(auth)/auth",
-        "/dashboard"
+        "/dashboard",
+        "/news/$id"
       ]
     },
     "/": {
@@ -305,6 +328,9 @@ export const routeTree = rootRoute
         "/dashboard/_authenticated/home",
         "/dashboard/_authenticated/news"
       ]
+    },
+    "/news/$id": {
+      "filePath": "news/$id.lazy.tsx"
     },
     "/dashboard/": {
       "filePath": "dashboard/index.tsx",
