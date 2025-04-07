@@ -1,17 +1,36 @@
-import React from "react";
-import { AppBar, Toolbar, Typography, IconButton, Box, Grid, Card, CardContent, CardMedia, Divider, List, ListItem, ListItemText } from "@mui/material";
-import MenuIcon from "@mui/icons-material/Menu";
+import React, { useEffect } from "react";
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  IconButton,
+  Box,
+  Grid,
+  Card,
+  CardContent,
+  CardMedia,
+  Divider,
+  List,
+  ListItem,
+  ListItemText,
+} from "@mui/material";
 import NotificationsIcon from "@mui/icons-material/Notifications";
+import { useJornals } from "@/hooks/journals";
 
-export const  Home = () => {
+export const Home = () => {
+  const { jornalData } = useJornals();
+
+  useEffect(() => {
+    if (jornalData?.success) {
+      console.log(jornalData);
+    }
+  }, [jornalData]);
+
   return (
     <Box sx={{ bgcolor: "#f3f4f6", minHeight: "100vh", width: "100vw" }}>
       {/* Header */}
       <AppBar position="static" color="default" elevation={1}>
         <Toolbar sx={{ justifyContent: "space-between" }}>
-          <IconButton edge="start" color="inherit">
-            <MenuIcon />
-          </IconButton>
           <Typography variant="h6" component="div">
             NINGUÉM PERGUNTOU
           </Typography>
@@ -22,7 +41,15 @@ export const  Home = () => {
       </AppBar>
 
       {/* Section Title */}
-      <Box sx={{ bgcolor: "#ec4899", color: "white", px: 2, py: 1, fontWeight: "bold" }}>
+      <Box
+        sx={{
+          bgcolor: "var(--pink)",
+          color: "white",
+          px: 2,
+          py: 1,
+          fontWeight: "bold",
+        }}
+      >
         Distrito Federal
       </Box>
 
@@ -41,7 +68,8 @@ export const  Home = () => {
             </Typography>
             <Typography variant="h6">Lorem ipsum dolor sit amet</Typography>
             <Typography variant="body2" color="textSecondary">
-              In laoreet semper odio ut mollis. Suspendisse laoreet ultricies ligula non eleifend.
+              In laoreet semper odio ut mollis. Suspendisse laoreet ultricies
+              ligula non eleifend.
             </Typography>
           </CardContent>
         </Card>
@@ -58,14 +86,19 @@ export const  Home = () => {
               alt="news"
             />
             <CardContent>
-              <Typography variant="caption" color="#ec4899" fontWeight="bold">
+              <Typography
+                variant="caption"
+                color="var(--pink)"
+                fontWeight="bold"
+              >
                 Esfoça
               </Typography>
               <Typography variant="subtitle1" fontWeight="bold">
                 Lorem ipsum dolor sit amet
               </Typography>
               <Typography variant="body2" color="textSecondary">
-                In laoreet semper odio ut mollis. Suspendisse laoreet ultricies ligula non eleifend.
+                In laoreet semper odio ut mollis. Suspendisse laoreet ultricies
+                ligula non eleifend.
               </Typography>
             </CardContent>
           </Card>
@@ -74,7 +107,11 @@ export const  Home = () => {
         <Grid item xs={12} md={6}>
           <Card>
             <CardContent>
-              <Typography variant="subtitle1" fontWeight="bold" color="#ec4899">
+              <Typography
+                variant="subtitle1"
+                fontWeight="bold"
+                color="var(--pink)"
+              >
                 Novidades
               </Typography>
               <List dense>
@@ -102,4 +139,4 @@ export const  Home = () => {
       </Grid>
     </Box>
   );
-}
+};
