@@ -1,12 +1,12 @@
 import { api } from "@/service/api";
 import { useQuery } from "@tanstack/react-query";
 
-export const useJornals = () => {
+export const useNews = (id?: string) => {
   const query = useQuery({
-    queryKey: ["getJornals"],
+    queryKey: ["getNews", id],
     queryFn: async () => {
       try {
-        const result = await api.get("/articles");
+        const result = await api.get("/articles/" + id);
 
         if (result.status === 200) {
           return { success: true, data: result.data, error: null };
@@ -17,12 +17,12 @@ export const useJornals = () => {
         throw new Error(error.response?.data?.error || "Erro ao tentar logar");
       }
     },
-    enabled: true,
+    enabled: !!id,
     staleTime: 1000 * 60 * 15, // 5 minutos
   });
 
   return {
-    jornalData: query.data, // Chama a função de forma assíncrona
+    newsData: query.data, // Chama a função de forma assíncrona
     loading: query.isPending,
     error: query.error instanceof Error ? query.error.message : null, // Obtém a mensagem de erro correta
   };

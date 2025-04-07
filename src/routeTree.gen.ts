@@ -14,6 +14,7 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as DashboardIndexImport } from './routes/dashboard/index'
+import { Route as NewsIdImport } from './routes/news/$id'
 import { Route as DashboardAuthenticatedRouteImport } from './routes/dashboard/_authenticated/route'
 import { Route as authAuthRouteImport } from './routes/(auth)/auth/route'
 import { Route as authAuthLoginImport } from './routes/(auth)/auth/login'
@@ -22,7 +23,6 @@ import { Route as authAuthLoginImport } from './routes/(auth)/auth/login'
 
 const DashboardImport = createFileRoute('/dashboard')()
 const IndexLazyImport = createFileRoute('/')()
-const NewsIdLazyImport = createFileRoute('/news/$id')()
 const DashboardAuthenticatedNewsLazyImport = createFileRoute(
   '/dashboard/_authenticated/news',
 )()
@@ -50,11 +50,11 @@ const DashboardIndexRoute = DashboardIndexImport.update({
   getParentRoute: () => DashboardRoute,
 } as any)
 
-const NewsIdLazyRoute = NewsIdLazyImport.update({
+const NewsIdRoute = NewsIdImport.update({
   id: '/news/$id',
   path: '/news/$id',
   getParentRoute: () => rootRoute,
-} as any).lazy(() => import('./routes/news/$id.lazy').then((d) => d.Route))
+} as any)
 
 const DashboardAuthenticatedRouteRoute =
   DashboardAuthenticatedRouteImport.update({
@@ -128,7 +128,7 @@ declare module '@tanstack/react-router' {
       id: '/news/$id'
       path: '/news/$id'
       fullPath: '/news/$id'
-      preLoaderRoute: typeof NewsIdLazyImport
+      preLoaderRoute: typeof NewsIdImport
       parentRoute: typeof rootRoute
     }
     '/dashboard/': {
@@ -211,7 +211,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexLazyRoute
   '/auth': typeof authAuthRouteRouteWithChildren
   '/dashboard': typeof DashboardAuthenticatedRouteRouteWithChildren
-  '/news/$id': typeof NewsIdLazyRoute
+  '/news/$id': typeof NewsIdRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/auth/login': typeof authAuthLoginRoute
   '/dashboard/home': typeof DashboardAuthenticatedHomeLazyRoute
@@ -222,7 +222,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexLazyRoute
   '/auth': typeof authAuthRouteRouteWithChildren
   '/dashboard': typeof DashboardIndexRoute
-  '/news/$id': typeof NewsIdLazyRoute
+  '/news/$id': typeof NewsIdRoute
   '/auth/login': typeof authAuthLoginRoute
   '/dashboard/home': typeof DashboardAuthenticatedHomeLazyRoute
   '/dashboard/news': typeof DashboardAuthenticatedNewsLazyRoute
@@ -234,7 +234,7 @@ export interface FileRoutesById {
   '/(auth)/auth': typeof authAuthRouteRouteWithChildren
   '/dashboard': typeof DashboardRouteWithChildren
   '/dashboard/_authenticated': typeof DashboardAuthenticatedRouteRouteWithChildren
-  '/news/$id': typeof NewsIdLazyRoute
+  '/news/$id': typeof NewsIdRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/(auth)/auth/login': typeof authAuthLoginRoute
   '/dashboard/_authenticated/home': typeof DashboardAuthenticatedHomeLazyRoute
@@ -279,14 +279,14 @@ export interface RootRouteChildren {
   IndexLazyRoute: typeof IndexLazyRoute
   authAuthRouteRoute: typeof authAuthRouteRouteWithChildren
   DashboardRoute: typeof DashboardRouteWithChildren
-  NewsIdLazyRoute: typeof NewsIdLazyRoute
+  NewsIdRoute: typeof NewsIdRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexLazyRoute: IndexLazyRoute,
   authAuthRouteRoute: authAuthRouteRouteWithChildren,
   DashboardRoute: DashboardRouteWithChildren,
-  NewsIdLazyRoute: NewsIdLazyRoute,
+  NewsIdRoute: NewsIdRoute,
 }
 
 export const routeTree = rootRoute
@@ -330,7 +330,7 @@ export const routeTree = rootRoute
       ]
     },
     "/news/$id": {
-      "filePath": "news/$id.lazy.tsx"
+      "filePath": "news/$id.tsx"
     },
     "/dashboard/": {
       "filePath": "dashboard/index.tsx",
