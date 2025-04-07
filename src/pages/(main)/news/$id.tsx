@@ -9,6 +9,7 @@ import {
   Card,
   CardContent,
   CardMedia,
+  Skeleton,
   Divider,
   List,
   ListItem,
@@ -20,6 +21,7 @@ import { BlocksRenderer, type BlocksContent } from "@/components/index";
 import { useParams } from "@tanstack/react-router";
 import { useNews } from "@/hooks/newsByID";
 import { set } from "zod";
+import { toast } from "sonner";
 
 export const NewsById = () => {
     // Conteúdo simulado vindo do CMS
@@ -32,8 +34,8 @@ export const NewsById = () => {
 
     useEffect(() => {
     if (newsData) {
+        toast.success("Notícia carregada com sucesso!");
         const {data} = newsData;
-        console.log("Data:", data); // Verifique se os dados estão corretos
         setMockContent(data.data.content); // Acessando os atributos corretamente
         setNewsTitle(data.data.title); // Acessando os atributos corretamente
         setNewsDescription(data.data.description); // Acessando os atributos corretamente
@@ -70,7 +72,17 @@ export const NewsById = () => {
 
       {/* Main Content */}
       <Box sx={{ p: 2 }}>
-        {loading ? <Typography>Loading...</Typography> : (
+        {loading ? (
+            <Card>
+                <Skeleton variant="rectangular" height={200} />
+                <CardContent>
+                <Skeleton variant="text" width="40%" />
+                <Skeleton variant="text" width="60%" />
+                <Skeleton variant="text" width="100%" />
+                <Skeleton variant="rounded" height={100} sx={{ mt: 2 }} />
+                </CardContent>
+        </Card>
+        ) : (
             <Card>
             <CardMedia
                 component="img"
