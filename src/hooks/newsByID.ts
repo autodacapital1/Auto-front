@@ -6,7 +6,7 @@ export const useNews = (id?: string) => {
     queryKey: ["getNews", id],
     queryFn: async () => {
       try {
-        const result = await api.get("/articles/" + id);
+        const result = await api.get("/articles/" + id + "?populate=*");
 
         if (result.status === 200) {
           return { success: true, data: result.data, error: null };

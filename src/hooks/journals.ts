@@ -6,7 +6,7 @@ export const useJornals = () => {
     queryKey: ["getJornals"],
     queryFn: async () => {
       try {
-        const result = await api.get("/articles");
+        const result = await api.get("/articles?populate=*");
 
         if (result.status === 200) {
           return { success: true, data: result.data, error: null };

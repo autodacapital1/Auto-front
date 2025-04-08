@@ -23,6 +23,7 @@
     "@tanstack/router": "^0.0.1-beta.53",
     "axios": "^1.8.4",
     "lucide-react": "^0.486.0",
+    "marked": "^15.0.8",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-lazy-load-image-component": "^1.6.3",
