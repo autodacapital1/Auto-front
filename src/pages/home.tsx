@@ -22,7 +22,6 @@ import { convertToBrazilianDateWithHours } from "@/utils/data";
 
 export const Home = () => {
   const { jornalData } = useJornals();
-  const [data, setData] = useState();
   const [bannerNews, setBannerNews] = useState(
     {} as {
       title: string;
@@ -43,15 +42,18 @@ export const Home = () => {
     "Raquel Soares Miguel de Azevedo",
   ];
 
-  const devs = ["Artur Dantas Martins", "Paulo Abdiel Sardinha de Sousa Santos"];
+  const devs = [
+    "Artur Dantas Martins",
+    "Paulo Abdiel Sardinha de Sousa Santos",
+  ];
 
   const navigate = useNavigate();
   const baseURL = import.meta.env.VITE_PUBLIC_HOST;
 
   useEffect(() => {
     if (jornalData?.success) {
-      setData(jornalData.data.data);
-      setBannerNews(jornalData.data.data.shift());
+      const tempList = [...jornalData.data.data];
+      setBannerNews(tempList.shift());
     }
   }, [jornalData]);
 
@@ -91,12 +93,17 @@ export const Home = () => {
       {/* Main Content - Carousel substitute */}
       <Box sx={{ p: 2 }}>
         <Card>
-          <CardMedia
-            component="img"
-            height="200"
-            image={baseURL + bannerNews?.cover?.url}
-            alt="news"
-          />
+          <Link
+            style={{ cursor: "pointer", color: "#000" }}
+            to={`/news/${bannerNews?.documentId}`}
+          >
+            <CardMedia
+              component="img"
+              height="200"
+              image={baseURL + bannerNews?.cover?.url}
+              alt="news"
+            />
+          </Link>
           <CardContent>
             <Link
               style={{ cursor: "pointer", color: "#000" }}
@@ -125,19 +132,21 @@ export const Home = () => {
             width: "100%",
           }}
         >
+          <h1>Últimas notícias:</h1>
           {jornalData?.data.data.map((item: any) => (
             <Card key={item.id} sx={{ display: "flex", paddingBottom: 0 }}>
-              <CardMedia
-                component="img"
-                sx={{ width: "300px", height: "200px", objectFit: "cover" }}
-                image={baseURL + item?.cover?.url}
-                alt="news"
-              />
+              <Link
+                style={{ cursor: "pointer", color: "#000" }}
+                to={`/news/${item?.documentId}`}
+              >
+                <CardMedia
+                  component="img"
+                  sx={{ width: "300px", height: "200px", objectFit: "cover" }}
+                  image={baseURL + item?.cover?.url}
+                  alt="news"
+                />
+              </Link>
               <CardContent>
-                <Link
-                  style={{ cursor: "pointer", color: "#000" }}
-                  to={`/news/${item?.documentId}`}
-                >
                   <Typography
                     variant="caption"
                     color="var(--pink)"
@@ -145,6 +154,10 @@ export const Home = () => {
                   >
                     {item.slug}
                   </Typography>
+                <Link
+                  style={{ cursor: "pointer", color: "#000" }}
+                  to={`/news/${item?.documentId}`}
+                >
                   <Typography variant="subtitle1" fontWeight="bold">
                     {item.title}
                   </Typography>
