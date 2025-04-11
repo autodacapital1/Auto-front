@@ -13,6 +13,7 @@ import {
   List,
   ListItem,
   ListItemText,
+  Skeleton,
 } from "@mui/material";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import { useJornals } from "@/hooks/journals";
@@ -21,19 +22,8 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { convertToBrazilianDateWithHours } from "@/utils/data";
 
 export const Home = () => {
-  const { jornalData } = useJornals();
-  const [bannerNews, setBannerNews] = useState(
-    {} as {
-      title: string;
-      createdAt: string;
-      content: [{}];
-      description: string;
-      documentId: string;
-      id: number;
-      publishedAt: string;
-      updatedAt: string;
-    }
-  );
+  const { jornalData, isLoading } = useJornals();
+  const [bannerNews, setBannerNews] = useState<any>({});
 
   const autores = [
     "Ingrid Thauane Santos Oliveira",
@@ -48,7 +38,6 @@ export const Home = () => {
   ];
 
   const navigate = useNavigate();
-  const baseURL = import.meta.env.VITE_PUBLIC_HOST;
 
   useEffect(() => {
     if (jornalData?.success) {
@@ -90,35 +79,46 @@ export const Home = () => {
         Distrito Federal
       </Box>
 
-      {/* Main Content - Carousel substitute */}
+      {/* Main Content - Banner */}
       <Box sx={{ p: 2 }}>
-        <Card>
-          <Link
-            style={{ cursor: "pointer", color: "#000" }}
-            to={`/news/${bannerNews?.documentId}`}
-          >
-            <CardMedia
-              component="img"
-              height="200"
-              image={baseURL + bannerNews?.cover?.url}
-              alt="news"
-            />
-          </Link>
-          <CardContent>
+        {isLoading || !bannerNews?.title ? (
+          <Card>
+            <Skeleton variant="rectangular" height={200} />
+            <CardContent>
+              <Skeleton width="60%" />
+              <Skeleton width="80%" />
+              <Skeleton width="40%" />
+            </CardContent>
+          </Card>
+        ) : (
+          <Card>
             <Link
               style={{ cursor: "pointer", color: "#000" }}
               to={`/news/${bannerNews?.documentId}`}
             >
-              <Typography variant="caption" color="textSecondary">
-                {convertToBrazilianDateWithHours(bannerNews?.publishedAt)}
-              </Typography>
-              <Typography variant="h6">{bannerNews?.title}</Typography>
-              <Typography variant="body2" color="textSecondary">
-                {bannerNews?.description}
-              </Typography>
+              <CardMedia
+                component="img"
+                height="200"
+                image={bannerNews?.cover?.url}
+                alt="news"
+              />
             </Link>
-          </CardContent>
-        </Card>
+            <CardContent>
+              <Link
+                style={{ cursor: "pointer", color: "#000" }}
+                to={`/news/${bannerNews?.documentId}`}
+              >
+                <Typography variant="caption" color="textSecondary">
+                  {convertToBrazilianDateWithHours(bannerNews?.publishedAt)}
+                </Typography>
+                <Typography variant="h6">{bannerNews?.title}</Typography>
+                <Typography variant="body2" color="textSecondary">
+                  {bannerNews?.description}
+                </Typography>
+              </Link>
+            </CardContent>
+          </Card>
+        )}
       </Box>
 
       {/* News Grid */}
@@ -133,46 +133,63 @@ export const Home = () => {
           }}
         >
           <h1>Últimas notícias:</h1>
-          {jornalData?.data.data.map((item: any) => (
-            <Card key={item.id} sx={{ display: "flex", paddingBottom: 0 }}>
-              <Link
-                style={{ cursor: "pointer", color: "#000" }}
-                to={`/news/${item?.documentId}`}
-              >
-                <CardMedia
-                  component="img"
-                  sx={{ width: "300px", height: "200px", objectFit: "cover" }}
-                  image={baseURL + item?.cover?.url}
-                  alt="news"
-                />
-              </Link>
-              <CardContent>
-                  <Typography
-                    variant="caption"
-                    color="var(--pink)"
-                    fontWeight="bold"
+          {isLoading
+            ? Array.from({ length: 3 }).map((_, i) => (
+                <Card key={i} sx={{ display: "flex", paddingBottom: 0 }}>
+                  <Skeleton variant="rectangular" width={300} height={200} />
+                  <CardContent sx={{ flex: 1 }}>
+                    <Skeleton width="30%" />
+                    <Skeleton width="60%" />
+                    <Skeleton width="80%" />
+                    <Skeleton width="50%" />
+                  </CardContent>
+                </Card>
+              ))
+            : jornalData?.data.data.map((item: any) => (
+                <Card key={item.id} sx={{ display: "flex", paddingBottom: 0 }}>
+                  <Link
+                    style={{ cursor: "pointer", color: "#000" }}
+                    to={`/news/${item?.documentId}`}
                   >
-                    {item.slug}
-                  </Typography>
-                <Link
-                  style={{ cursor: "pointer", color: "#000" }}
-                  to={`/news/${item?.documentId}`}
-                >
-                  <Typography variant="subtitle1" fontWeight="bold">
-                    {item.title}
-                  </Typography>
-                  <Typography variant="body2" color="textSecondary">
-                    {item.description}
-                  </Typography>
-                  <Typography variant="body2" color="textSecondary">
-                    {convertToBrazilianDateWithHours(item.createdAt)}
-                  </Typography>
-                </Link>
-              </CardContent>
-            </Card>
-          ))}
+                    <CardMedia
+                      component="img"
+                      sx={{
+                        width: "300px",
+                        height: "200px",
+                        objectFit: "cover",
+                      }}
+                      image={item?.cover?.url}
+                      alt="news"
+                    />
+                  </Link>
+                  <CardContent>
+                    <Typography
+                      variant="caption"
+                      color="var(--pink)"
+                      fontWeight="bold"
+                    >
+                      {item.slug}
+                    </Typography>
+                    <Link
+                      style={{ cursor: "pointer", color: "#000" }}
+                      to={`/news/${item?.documentId}`}
+                    >
+                      <Typography variant="subtitle1" fontWeight="bold">
+                        {item.title}
+                      </Typography>
+                      <Typography variant="body2" color="textSecondary">
+                        {item.description}
+                      </Typography>
+                      <Typography variant="body2" color="textSecondary">
+                        {convertToBrazilianDateWithHours(item.createdAt)}
+                      </Typography>
+                    </Link>
+                  </CardContent>
+                </Card>
+              ))}
         </section>
 
+        {/* Responsáveis */}
         <Grid sx={{ padding: "1rem" }} item xs={12} md={6}>
           <Card>
             <CardContent>
@@ -184,38 +201,23 @@ export const Home = () => {
                 Responsáveis
               </Typography>
               <List dense>
-                {autores.map((item) => (
-                  <React.Fragment key={item.id}>
+                {[...autores, ...devs].map((item, index) => (
+                  <React.Fragment key={index}>
                     <ListItem disablePadding>
                       <ListItemText
                         primary={
                           <>
                             <Typography component="span" color="primary">
-                              Autor
+                              {index < autores.length
+                                ? "Autor"
+                                : "Desenvolvedor"}
                             </Typography>{" "}
                             {item}
                           </>
                         }
                       />
                     </ListItem>
-                    {item.length < 2 && <Divider />}
-                  </React.Fragment>
-                ))}
-                {devs.map((item) => (
-                  <React.Fragment key={item.id}>
-                    <ListItem disablePadding>
-                      <ListItemText
-                        primary={
-                          <>
-                            <Typography component="span" color="primary">
-                              Desenvolvedor
-                            </Typography>{" "}
-                            {item}
-                          </>
-                        }
-                      />
-                    </ListItem>
-                    {item.id < 2 && <Divider />}
+                    {index < autores.length + devs.length - 1 && <Divider />}
                   </React.Fragment>
                 ))}
               </List>

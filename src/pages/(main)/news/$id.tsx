@@ -5,15 +5,10 @@ import {
   Typography,
   IconButton,
   Box,
-  Grid,
   Card,
   CardContent,
   CardMedia,
   Skeleton,
-  Divider,
-  List,
-  ListItem,
-  ListItemText,
 } from "@mui/material";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 
@@ -22,30 +17,30 @@ import { useNavigate, useParams } from "@tanstack/react-router";
 import { useNews } from "@/hooks/newsByID";
 import { toast } from "sonner";
 
-const baseURL = import.meta.env.VITE_PUBLIC_HOST;
 import Icon from "@/assets/img/icon.png";
 
 export const NewsById = () => {
-  // Conteúdo simulado vindo do CMS
   const { id } = useParams({ strict: false });
-  const { newsData, loading, error } = useNews(id);
-  const [mockContent, setMockContent] = useState<BlocksContent>([]);
-  const [newsTitle, setNewsTitle] = useState<string>("");
-  const [newsDescription, setNewsDescription] = useState<string>("");
-  const [newsCreatedAt, setNewsCreatedAt] = useState<string>("");
-  const [imageUrl, setImageUrl] = useState("");
+  const { newsData, loading } = useNews(id);
   const navigate = useNavigate();
+
+  const [mockContent, setMockContent] = useState<BlocksContent>([]);
+  const [newsTitle, setNewsTitle] = useState("");
+  const [newsDescription, setNewsDescription] = useState("");
+  const [newsCreatedAt, setNewsCreatedAt] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
 
   useEffect(() => {
     if (newsData) {
-      toast.success("Notícia carregada com sucesso!");
       const { data } = newsData;
-      setMockContent(data.data.content); // Acessando os atributos corretamente
-      setNewsTitle(data.data.title); // Acessando os atributos corretamente
-      setNewsDescription(data.data.description); // Acessando os atributos corretamente
-      setNewsCreatedAt(data.data.createdAt); // Acessando os atributos corretamente
-      setImageUrl(data.data?.cover?.url); // Acessando os atributos corretamente
-      console.log(baseURL + data.data?.cover?.url);
+      const attributes = data.data;
+
+      setMockContent(attributes.content);
+      setNewsTitle(attributes.title);
+      setNewsDescription(attributes.description);
+      setNewsCreatedAt(attributes.createdAt);
+      setImageUrl(attributes.cover?.url || "");
+      toast.success("Notícia carregada com sucesso!");
     }
   }, [newsData]);
 
@@ -55,25 +50,18 @@ export const NewsById = () => {
         background: "#f3f4f6",
         height: "100%",
         width: "100%",
-        padding: 0,
-        margin: 0,
-        boxSizing: "border-box", // essencial
+        boxSizing: "border-box",
       }}
     >
       {/* Header */}
-      <AppBar
-        style={{ width: "100%", boxSizing: "border-box" }}
-        position="static"
-        color="default"
-        elevation={1}
-      >
+      <AppBar position="static" color="default" elevation={1}>
         <Toolbar sx={{ justifyContent: "space-between" }}>
-          <Typography style={{ display: "flex" }} variant="h6" component="div">
+          <Typography variant="h6" sx={{ display: "flex", alignItems: "center" }}>
             <img
-              onClick={() => navigate({ to: "/" })}
-              style={{ width: "30px", marginRight: "20px", cursor: "pointer" }}
               src={Icon}
-              alt=""
+              alt="Logo"
+              onClick={() => navigate({ to: "/" })}
+              style={{ width: 30, marginRight: 20, cursor: "pointer" }}
             />
             NINGUÉM PERGUNTOU
           </Typography>
@@ -98,7 +86,7 @@ export const NewsById = () => {
       </Box>
 
       {/* Main Content */}
-      <Box>
+      <Box sx={{ p: 2 }}>
         {loading ? (
           <Card>
             <Skeleton variant="rectangular" height={200} />
@@ -110,78 +98,53 @@ export const NewsById = () => {
             </CardContent>
           </Card>
         ) : (
-          <Card
-            style={{
-              display: "flex",
-              width: "100%",
-              maxWidth: "100%",
-              flexDirection: "column",
-              padding: 16, // use um valor mais confortável, em px
-              boxSizing: "border-box", // essencial
-              overflowX: "hidden",
-            }}
-          >
+          <Card sx={{ display: "flex", flexDirection: "column", overflowX: "hidden" }}>
             <CardMedia
               component="img"
               height="300"
-              width={"100%"}
-              image={baseURL + imageUrl}
+              image={imageUrl}
               alt="news"
+              sx={{ objectFit: "cover", width: "100%" }}
             />
-            <CardContent
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                boxSizing: "border-box",
-                flexWrap: "wrap",
-              }}
-            >
-              <Typography
-                sx={{ textAlign: "start" }}
-                variant="caption"
-                color="textSecondary"
-              >
+            <CardContent>
+              <Typography variant="caption" color="textSecondary" gutterBottom>
                 {newsCreatedAt}
               </Typography>
-              <Typography variant="h6">{newsTitle}</Typography>
-              <Typography variant="body2" color="textSecondary">
+              <Typography variant="h6" gutterBottom>
+                {newsTitle}
+              </Typography>
+              <Typography variant="body2" color="textSecondary" gutterBottom>
                 {newsDescription}
               </Typography>
 
-              {/* Aqui entra o conteúdo dinâmico vindo do CMS */}
+              {/* Dynamic CMS Content */}
               <Box
                 sx={{
                   mt: 2,
-                  display: "flex",
-                  flexDirection: "column",
-                  flexWrap: "wrap",
                   "& p": {
-                    lineHeight: "1.8",
+                    lineHeight: 1.8,
                     fontSize: "1rem",
-                    marginBottom: "1em",
+                    mb: 2,
                     textAlign: "justify",
                   },
                   "& iframe": {
-                    width: "50% !important",
-                    display: "flex",
-                    justifySelf: "center",
+                    width: "100% !important",
                     maxWidth: "100%",
-                    height: "auto",
-                    aspectRatio: "16/9", // Mantém a proporção
+                    aspectRatio: "16/9",
+                    border: "none",
                   },
                 }}
               >
                 <BlocksRenderer
                   content={mockContent}
                   blocks={{
-                    paragraph: ({ children, ...rest }) => {
+                    paragraph: ({ children }: any) => {
                       const textContent =
-                        children?.map((child) => child.props.text).join("") ??
-                        "";
+                        children?.map((child: any) => child.props.text).join("") ?? "";
 
-                      // Verifica se é um HTML embutido (como <iframe>)
-                      const hasHTML = /<\/?(iframe)/.test(textContent);
-                      if (hasHTML) {
+                      const isIframe = /<\/?(iframe)/.test(textContent);
+
+                      if (isIframe) {
                         return (
                           <div
                             dangerouslySetInnerHTML={{ __html: textContent }}
