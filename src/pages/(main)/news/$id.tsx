@@ -18,6 +18,7 @@ import { useNews } from "@/hooks/newsByID";
 import { toast } from "sonner";
 
 import Icon from "@/assets/img/icon.png";
+import { convertToBrazilianDateWithHours } from "@/utils/data";
 
 export const NewsById = () => {
   const { id } = useParams({ strict: false });
@@ -28,17 +29,20 @@ export const NewsById = () => {
   const [newsTitle, setNewsTitle] = useState("");
   const [newsDescription, setNewsDescription] = useState("");
   const [newsCreatedAt, setNewsCreatedAt] = useState("");
+  const [category, setCategory] = useState([]);
   const [imageUrl, setImageUrl] = useState("");
 
   useEffect(() => {
     if (newsData) {
       const { data } = newsData;
       const attributes = data.data;
+      console.log("attributes", attributes);
 
       setMockContent(attributes.content);
       setNewsTitle(attributes.title);
       setNewsDescription(attributes.description);
       setNewsCreatedAt(attributes.createdAt);
+      setCategory(attributes.categories);
       setImageUrl(attributes.cover?.url || "");
       toast.success("Notícia carregada com sucesso!");
     }
@@ -56,7 +60,10 @@ export const NewsById = () => {
       {/* Header */}
       <AppBar position="static" color="default" elevation={1}>
         <Toolbar sx={{ justifyContent: "space-between" }}>
-          <Typography variant="h6" sx={{ display: "flex", alignItems: "center" }}>
+          <Typography
+            variant="h6"
+            sx={{ display: "flex", alignItems: "center" }}
+          >
             <img
               src={Icon}
               alt="Logo"
@@ -98,7 +105,13 @@ export const NewsById = () => {
             </CardContent>
           </Card>
         ) : (
-          <Card sx={{ display: "flex", flexDirection: "column", overflowX: "hidden" }}>
+          <Card
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              overflowX: "hidden",
+            }}
+          >
             <CardMedia
               component="img"
               height="300"
@@ -107,9 +120,26 @@ export const NewsById = () => {
               sx={{ objectFit: "cover", width: "100%" }}
             />
             <CardContent>
-              <Typography variant="caption" color="textSecondary" gutterBottom>
-                {newsCreatedAt}
-              </Typography>
+              <section style={{ display: "flex", flexDirection: "column" }}>
+                <section style={{ display: "flex", gap: "5px" }}>
+                  {category?.map((cat: any, index: number) => (
+                    <Typography
+                      key={index}
+                      variant="caption"
+                      color="var(--pink)"
+                      fontWeight="bold"
+                    >
+                      {index === category.length - 1
+                        ? cat.name
+                        : `${cat.name},`}
+                    </Typography>
+                  ))}
+                </section>
+
+                <Typography variant="caption" color="textSecondary">
+                  {convertToBrazilianDateWithHours(newsCreatedAt)}
+                </Typography>
+              </section>
               <Typography variant="h6" gutterBottom>
                 {newsTitle}
               </Typography>
@@ -123,7 +153,7 @@ export const NewsById = () => {
                   mt: 2,
                   "& p": {
                     lineHeight: 1.8,
-                    fontSize: "1rem",
+                    fontSize: "1.2rem",
                     mb: 2,
                     textAlign: "justify",
                   },
@@ -140,7 +170,9 @@ export const NewsById = () => {
                   blocks={{
                     paragraph: ({ children }: any) => {
                       const textContent =
-                        children?.map((child: any) => child.props.text).join("") ?? "";
+                        children
+                          ?.map((child: any) => child.props.text)
+                          .join("") ?? "";
 
                       const isIframe = /<\/?(iframe)/.test(textContent);
 
