@@ -16,6 +16,7 @@ import {
   Skeleton,
 } from "@mui/material";
 import NotificationsIcon from "@mui/icons-material/Notifications";
+import MenuIcon from "@mui/icons-material/Menu";
 import { useJornals } from "@/hooks/journals";
 import Icon from "@/assets/img/logo_visao.png";
 import { Link, useNavigate } from "@tanstack/react-router";
@@ -46,34 +47,43 @@ export const Home = () => {
   return (
     <Box sx={{ bgcolor: "#f3f4f6", minHeight: "100%", width: "100%" }}>
       {/* Header */}
-      <AppBar position="static" color="default" elevation={1}>
-        <Toolbar sx={{ justifyContent: "space-between" }}>
-          <Typography style={{ display: "flex" }} variant="h6" component="div">
+      <AppBar position="static" color="default" elevation={1} sx={{ backgroundColor: "#282828" }}>
+        <Toolbar
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            minHeight: "80px",
+          }}
+        >
+          {/* Lado esquerdo */}
+          <Box>
+      <IconButton edge="start" color="inherit" onClick={() => console.log("Abrir menu")}>
+        <MenuIcon sx={{ color: "#fff" }} />
+      </IconButton>
+    </Box>
+
+          {/* Centro - Logo */}
+          <Box sx={{ flexGrow: 1, display: "flex", justifyContent: "center" }}>
             <img
-              onClick={() => navigate({ to: "/" })}
-              style={{ width: "200px", marginRight: "20px", cursor: "pointer" }}
               src={Icon}
-              alt=""
+              alt="Logo"
+              onClick={() => navigate({ to: "/" })}
+              style={{
+                width: 150,
+                cursor: "pointer",
+              }}
             />
-          </Typography>
-          <IconButton edge="end" color="inherit">
-            <NotificationsIcon />
-          </IconButton>
+          </Box>
+
+          {/* Lado direito */}
+          <Box>
+            <IconButton edge="end" color="inherit" onClick={() => console.log("Notificação")}>
+              <NotificationsIcon sx={{ color: "#fff" }} />
+            </IconButton>
+          </Box>
         </Toolbar>
       </AppBar>
-
-      {/* Section Title */}
-      <Box
-        sx={{
-          bgcolor: "var(--pink)",
-          color: "white",
-          px: 2,
-          py: 1,
-          fontWeight: "bold",
-        }}
-      >
-        Distrito Federal
-      </Box>
 
       {/* Main Content - Banner */}
       <Box sx={{ p: 2 }}>

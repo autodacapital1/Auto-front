@@ -11,13 +11,15 @@ import {
   Skeleton,
 } from "@mui/material";
 import NotificationsIcon from "@mui/icons-material/Notifications";
+import MenuIcon from "@mui/icons-material/Menu";
+
 
 import { BlocksRenderer, type BlocksContent } from "@/components/index";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { useNews } from "@/hooks/newsByID";
 import { toast } from "sonner";
 
-import Icon from "@/assets/img/icon.png";
+import Icon from "@/assets/img/logo_visao.png";
 import { convertToBrazilianDateWithHours } from "@/utils/data";
 
 export const NewsById = () => {
@@ -36,7 +38,6 @@ export const NewsById = () => {
     if (newsData) {
       const { data } = newsData;
       const attributes = data.data;
-      console.log("attributes", attributes);
 
       setMockContent(attributes.content);
       setNewsTitle(attributes.title);
@@ -51,46 +52,50 @@ export const NewsById = () => {
   return (
     <section
       style={{
-        background: "#f3f4f6",
+        background: "#F9F9F9",
         height: "100%",
         width: "100%",
         boxSizing: "border-box",
       }}
     >
       {/* Header */}
-      <AppBar position="static" color="default" elevation={1}>
-        <Toolbar sx={{ justifyContent: "space-between" }}>
-          <Typography
-            variant="h6"
-            sx={{ display: "flex", alignItems: "center" }}
-          >
+      <AppBar position="static" color="default" elevation={1} sx={{ backgroundColor: "#282828" }}>
+        <Toolbar
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            minHeight: "80px",
+          }}
+        >
+          {/* Lado esquerdo */}
+          <Box>
+      <IconButton edge="start" color="inherit" onClick={() => console.log("Abrir menu")}>
+        <MenuIcon sx={{ color: "#fff" }} />
+      </IconButton>
+    </Box>
+
+          {/* Centro - Logo */}
+          <Box sx={{ flexGrow: 1, display: "flex", justifyContent: "center" }}>
             <img
               src={Icon}
               alt="Logo"
               onClick={() => navigate({ to: "/" })}
-              style={{ width: 30, marginRight: 20, cursor: "pointer" }}
+              style={{
+                width: 150,
+                cursor: "pointer",
+              }}
             />
-            NINGUÉM PERGUNTOU
-          </Typography>
-          <IconButton edge="end" color="inherit">
-            <NotificationsIcon />
-          </IconButton>
+          </Box>
+
+          {/* Lado direito */}
+          <Box>
+            <IconButton edge="end" color="inherit" onClick={() => console.log("Notificação")}>
+              <NotificationsIcon sx={{ color: "#fff" }} />
+            </IconButton>
+          </Box>
         </Toolbar>
       </AppBar>
-
-      {/* Section Title */}
-      <Box
-        sx={{
-          bgcolor: "var(--pink)",
-          color: "white",
-          px: 2,
-          py: 1,
-          fontWeight: "bold",
-          width: "100%",
-        }}
-      >
-        Distrito Federal
-      </Box>
 
       {/* Main Content */}
       <Box sx={{ p: 2 }}>
