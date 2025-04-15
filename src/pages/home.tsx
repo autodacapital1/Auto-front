@@ -17,7 +17,7 @@ import {
 } from "@mui/material";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import { useJornals } from "@/hooks/journals";
-import Icon from "@/assets/img/icon.png";
+import Icon from "@/assets/img/logo_visao.png";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { convertToBrazilianDateWithHours } from "@/utils/data";
 
@@ -32,10 +32,7 @@ export const Home = () => {
     "Raquel Soares Miguel de Azevedo",
   ];
 
-  const devs = [
-    "Artur Dantas Martins",
-    "Paulo Abdiel Sardinha de Sousa Santos",
-  ];
+  const devs = ["Walter Moura", "Alison"];
 
   const navigate = useNavigate();
 
@@ -54,11 +51,10 @@ export const Home = () => {
           <Typography style={{ display: "flex" }} variant="h6" component="div">
             <img
               onClick={() => navigate({ to: "/" })}
-              style={{ width: "30px", marginRight: "20px", cursor: "pointer" }}
+              style={{ width: "200px", marginRight: "20px", cursor: "pointer" }}
               src={Icon}
               alt=""
             />
-            NINGUÉM PERGUNTOU
           </Typography>
           <IconButton edge="end" color="inherit">
             <NotificationsIcon />

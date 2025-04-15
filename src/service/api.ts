@@ -5,6 +5,6 @@ const baseURL = import.meta.env.VITE_PUBLIC_HOST;
 // Obtém a URL base da variável de ambiente PUBLIC_HOST.
 
 export const api = axios.create({
-    baseURL: baseURL + "/api",
+  baseURL: baseURL + "/api",
 });
 // Cria uma instância do cliente Axios chamada 'api' com a URL base definida.
