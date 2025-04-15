@@ -27,10 +27,10 @@ export const Home = () => {
   const [bannerNews, setBannerNews] = useState<any>({});
 
   const autores = [
-    "Ingrid Thauane Santos Oliveira",
-    "Isabela de Moura Costa",
-    "Matheus Borges Ribeiro",
-    "Raquel Soares Miguel de Azevedo",
+    "Ludmilla",
+    "João Caetano",
+    "Daniella Ribeiro",
+    "Hugo",
   ];
 
   const devs = ["Walter Moura", "Alison"];
