@@ -98,7 +98,7 @@ export const NewsById = () => {
       </AppBar>
 
       {/* Main Content */}
-      <Box sx={{ p: 2 }}>
+      <Box sx={{ paddingTop: 2}}>
         {loading ? (
           <Card>
             <Skeleton variant="rectangular" height={200} />
@@ -124,43 +124,60 @@ export const NewsById = () => {
               alt="news"
               sx={{ objectFit: "cover", width: "100%" }}
             />
-            <CardContent>
-              <section style={{ display: "flex", flexDirection: "column" }}>
-                <section style={{ display: "flex", gap: "5px" }}>
-                  {category?.map((cat: any, index: number) => (
-                    <Typography
-                      key={index}
-                      variant="caption"
-                      color="var(--pink)"
-                      fontWeight="bold"
-                    >
-                      {index === category.length - 1
-                        ? cat.name
-                        : `${cat.name},`}
-                    </Typography>
-                  ))}
-                </section>
+            <CardContent
+              sx={{
+                px: { xs: 2, sm: 4 }, // padding menor em telas pequenas
+                py: 4,
+                width: '100%',
+                maxWidth: '800px',
+                mx: 'auto', // centraliza horizontalmente
+              }}
+            >
 
-                <Typography variant="caption" color="textSecondary">
-                  {convertToBrazilianDateWithHours(newsCreatedAt)}
-                </Typography>
-              </section>
-              <Typography variant="h6" gutterBottom>
+              {/* Título da Notícia */}
+              <Typography
+                variant="h5"
+                component="h1"
+                align="center"
+                fontWeight="bold"
+                sx={{ mb: 2 }}
+              >
                 {newsTitle}
               </Typography>
-              <Typography variant="body2" color="textSecondary" gutterBottom>
-                {newsDescription}
+
+              {/* Descrição (subtítulo) */}
+              {newsDescription && (
+                <Typography
+                  variant="subtitle1"
+                  align="center"
+                  color="textSecondary"
+                  sx={{ mb: 3 }}
+                >
+                  {newsDescription}
+                </Typography>
+              )}
+
+              {/* Localização e Data */}
+              <Typography
+                variant="body2"
+                color="textSecondary"
+                align="center"
+                sx={{ mb: 3 }}
+              >
+                {`Daniela, DF, Brasília`}
+                <br />
+                {`Publicado em ${convertToBrazilianDateWithHours(newsCreatedAt)}`}
               </Typography>
 
-              {/* Dynamic CMS Content */}
+              {/* Conteúdo da Notícia (CMS) */}
               <Box
                 sx={{
-                  mt: 2,
+                  px: 4,
                   "& p": {
-                    lineHeight: 1.8,
-                    fontSize: "1.2rem",
-                    mb: 2,
                     textAlign: "justify",
+                    fontSize: "1.1rem",
+                    lineHeight: 1.8,
+                    mb: 3,
                   },
                   "& iframe": {
                     width: "100% !important",
@@ -175,9 +192,7 @@ export const NewsById = () => {
                   blocks={{
                     paragraph: ({ children }: any) => {
                       const textContent =
-                        children
-                          ?.map((child: any) => child.props.text)
-                          .join("") ?? "";
+                        children?.map((child: any) => child.props.text).join("") ?? "";
 
                       const isIframe = /<\/?(iframe)/.test(textContent);
 
