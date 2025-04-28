@@ -49,7 +49,6 @@ export const NewsById = () => {
       }}
     >
       {/* Header no estilo da página principal */}
-      {/* Header com estilo da home, cor personalizada e sem "Anuncie aqui" */}
       <Box
         sx={{
           display: "flex",
