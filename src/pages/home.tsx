@@ -3,7 +3,6 @@ import {
   AppBar,
   Toolbar,
   Typography,
-  IconButton,
   Box,
   Grid,
   Card,
@@ -14,228 +13,246 @@ import {
   ListItem,
   ListItemText,
   Skeleton,
+  IconButton,
 } from "@mui/material";
-import NotificationsIcon from "@mui/icons-material/Notifications";
-import MenuIcon from "@mui/icons-material/Menu";
 import { useJornals } from "@/hooks/journals";
-import Icon from "@/assets/img/logo_visao.png";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { convertToBrazilianDateWithHours } from "@/utils/data";
+import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 
 export const Home = () => {
   const { jornalData, isLoading } = useJornals();
-  const [bannerNews, setBannerNews] = useState<any>({});
-
-  const autores = [
-    "Ludmilla",
-    "João Caetano",
-    "Daniella Ribeiro",
-    "Hugo",
-  ];
-
+  const destaqueNoticias = jornalData?.data?.data?.slice(0, 5) || [];
+  const outrasMiniaturas = jornalData?.data?.data?.slice(5, 11) || []; // Alterado para pegar até 6 notícias
+  const [carouselIndex, setCarouselIndex] = useState(0);
+  const autores = ["Ludmilla", "João Caetano", "Daniella Ribeiro", "Hugo"];
   const devs = ["Walter Moura", "Alison"];
 
-  const navigate = useNavigate();
-
   useEffect(() => {
-    if (jornalData?.success) {
-      const tempList = [...jornalData.data.data];
-      setBannerNews(tempList.shift());
-    }
-  }, [jornalData]);
+    const interval = setInterval(() => {
+      setCarouselIndex((prev) =>
+        destaqueNoticias.length > 0 ? (prev + 1) % destaqueNoticias.length : 0
+      );
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [destaqueNoticias]);
+
+  const goToNext = () => {
+    setCarouselIndex((prev) =>
+      destaqueNoticias.length > 0 ? (prev + 1) % destaqueNoticias.length : 0
+    );
+  };
+
+  const goToPrevious = () => {
+    setCarouselIndex((prev) =>
+      destaqueNoticias.length > 0
+        ? (prev - 1 + destaqueNoticias.length) % destaqueNoticias.length
+        : 0
+    );
+  };
 
   return (
-    <Box sx={{ bgcolor: "#f3f4f6", minHeight: "100%", width: "100%" }}>
-      {/* Header */}
-      <AppBar position="static" color="default" elevation={1} sx={{ backgroundColor: "#282828" }}>
-        <Toolbar
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            minHeight: "80px",
-          }}
-        >
-          {/* Lado esquerdo */}
-          <Box>
-      <IconButton edge="start" color="inherit" onClick={() => console.log("Abrir menu")}>
-        <MenuIcon sx={{ color: "#fff" }} />
-      </IconButton>
-    </Box>
-
-          {/* Centro - Logo */}
-          <Box sx={{ flexGrow: 1, display: "flex", justifyContent: "center" }}>
-            <img
-              src={Icon}
-              alt="Logo"
-              onClick={() => navigate({ to: "/" })}
-              style={{
-                width: 150,
-                cursor: "pointer",
-              }}
-            />
-          </Box>
-
-          {/* Lado direito */}
-          <Box>
-            <IconButton edge="end" color="inherit" onClick={() => console.log("Notificação")}>
-              <NotificationsIcon sx={{ color: "#fff" }} />
-            </IconButton>
-          </Box>
+    <Box sx={{ backgroundColor: "#f9f9f9", color: "#000" }}>
+      {/* Topbar */}
+      <AppBar position="static" sx={{ backgroundColor: "#00529B" }}>
+        <Toolbar variant="dense">
+          <Typography variant="body2" sx={{ ml: 2 }}>
+            Um site de notícias
+          </Typography>
         </Toolbar>
       </AppBar>
 
-      {/* Main Content - Banner */}
-      <Box sx={{ p: 2 }}>
-        {isLoading || !bannerNews?.title ? (
-          <Card>
-            <Skeleton variant="rectangular" height={200} />
-            <CardContent>
-              <Skeleton width="60%" />
-              <Skeleton width="80%" />
-              <Skeleton width="40%" />
-            </CardContent>
-          </Card>
-        ) : (
-          <Card sx={{
-            maxWidth: "800px",  // Limita a largura do banner
-            margin: "0 auto",   // Centraliza o banner na tela
-            borderRadius: "2px", // (opcional) se você quiser arredondar as bordas
-          }}>
-            <Link
-              style={{ cursor: "pointer", color: "#000" }}
-              to={`/news/${bannerNews?.documentId}`}
-            >
-
-              
-              <CardMedia
-                component="img"
-                height="200"
-                image={bannerNews?.cover?.url}
-                alt="news"
-              />
-            </Link>
-            <CardContent>
-            <CardContent>
-  <Link
-    style={{ cursor: "pointer", color: "#000" }}
-    to={`/news/${bannerNews?.documentId}`}
-  >
-    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-      {/* Lado esquerdo - Título e Data */}
-      <Box>
-        <Typography variant="caption" color="textSecondary">
-          {convertToBrazilianDateWithHours(bannerNews?.publishedAt)}
-        </Typography>
-        <Typography variant="h6">{bannerNews?.title}</Typography>
-      </Box>
-
-      {/* Lado direito - Texto */}
-      <Box sx={{ maxWidth: "60%", paddingLeft: 2 }}>
-        <Typography variant="body2" color="textSecondary">
-          {bannerNews?.description}
-        </Typography>
-      </Box>
-    </Box>
-  </Link>
-</CardContent>
-
-            </CardContent>
-          </Card>
-        )}
-      </Box>
-
-      {/* Espaço entre o Banner e as Últimas Notícias */}
-
+      {/* Header */}
       <Box
-  sx={{
-    height: "400px",
-    backgroundColor: "#282828",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 2,
-    gap: 4,
-  }}
->
-  {/* Imagem à esquerda */}
-  <Box sx={{ flex: 1, maxWidth: 400 }}>
-    <img
-      src={bannerNews?.cover?.url}
-      alt="Notícia"
-      style={{
-        width: "100%",
-        height: "auto",
-        objectFit: "cover",
-      }}
-    />
-  </Box>
-
-  {/* Conteúdo à direita - com link */}
-  <Link
-    to={`/news/${bannerNews?.documentId}`}
-    style={{ flex: 2, textDecoration: "none", color: "inherit" }}
-  >
-    <Box
-      sx={{
-        height: "100%",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-        color: "#fff",
-        paddingY: 2,
-      }}
-    >
-      {/* Título e texto */}
-      <Box>
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          padding: "1rem 2rem",
+          backgroundColor: "#fff",
+          borderBottom: "1px solid #ccc",
+        }}
+      >
         <Typography
-          variant="h5"
-          fontSize="18px"
-          fontWeight="bold"
-          gutterBottom
-          sx={{ textAlign: "left", marginBottom: "50px"}}
-        >
-          {bannerNews?.title}
-        </Typography>
-
-        <Typography
-          variant="body1"
+          variant="h3"
           sx={{
-            textAlign: "center",
-            maxWidth: "90%",
-            marginX: "auto",
+            fontWeight: "bold",
+            color: "#000",
+            fontFamily: "serif",
+            "& span": { color: "#0074D9" },
           }}
         >
-          {bannerNews?.description}
+          <span>O auto da</span> capital
         </Typography>
-      </Box>
 
-      {/* Data */}
-      <Box sx={{ alignSelf: "flex-end", marginTop: 20, }}>
-        <Typography variant="caption" color="gray">
-          {convertToBrazilianDateWithHours(bannerNews?.publishedAt)}
-        </Typography>
-      </Box>
-    </Box>
-  </Link>
-</Box>
-
-
-      {/* News Grid */}
-      <section style={{ display: "flex" }}>
-        <section
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "1rem",
+        <Box
+          sx={{
+            backgroundColor: "#2b2b2b",
             padding: "1rem",
-            width: "100%",
+            color: "#00aaff",
+            minWidth: "300px",
           }}
         >
-          <h1>Últimas notícias:</h1>
+          <Typography variant="h6">O auto da capital</Typography>
+          <Typography
+            variant="subtitle1"
+            sx={{ color: "#fff", fontWeight: "bold" }}
+          >
+            Anuncie aqui
+          </Typography>
+        </Box>
+      </Box>
+
+      {/* Menu */}
+      <AppBar
+        position="static"
+        elevation={1}
+        sx={{ backgroundColor: "#00529B" }}
+      >
+        <Toolbar variant="dense" sx={{ justifyContent: "left", gap: 4 }}>
+          <Typography variant="body1" sx={{ cursor: "pointer" }}>
+            Home
+          </Typography>
+          <Typography variant="body1" sx={{ cursor: "pointer" }}>
+            Notícias
+          </Typography>
+          <Typography variant="body1" sx={{ cursor: "pointer" }}>
+            Sobre
+          </Typography>
+          <Typography variant="body1" sx={{ cursor: "pointer" }}>
+            Contato
+          </Typography>
+        </Toolbar>
+      </AppBar>
+
+      {/* Carrossel e Miniaturas */}
+      <Box sx={{ display: "flex", p: 2, gap: 2, height: 400 }}>
+        {/* Carrossel */}
+        <Box sx={{ flex: "1 1 65%", position: "relative" }}>
+          {destaqueNoticias.length > 0 && (
+            <Link
+              to={`/news/${destaqueNoticias[carouselIndex]?.documentId || ""}`}
+              style={{ textDecoration: "none" }}
+            >
+              <img
+                src={destaqueNoticias[carouselIndex].cover?.url}
+                alt="Destaque"
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                }}
+              />
+              <Typography
+                variant="h6"
+                sx={{
+                  position: "absolute",
+                  top: 10,
+                  left: 10,
+                  color: "#fff",
+                  backgroundColor: "rgba(0,0,0,0.5)",
+                  padding: "0.5rem",
+                  borderRadius: "4px",
+                }}
+              >
+                {destaqueNoticias[carouselIndex].title}
+              </Typography>
+            </Link>
+          )}
+          <IconButton
+            onClick={goToPrevious}
+            sx={{
+              position: "absolute",
+              top: "50%",
+              left: "10px",
+              color: "#fff",
+              backgroundColor: "rgba(0,0,0,0.3)",
+            }}
+          >
+            <ArrowBackIosIcon />
+          </IconButton>
+          <IconButton
+            onClick={goToNext}
+            sx={{
+              position: "absolute",
+              top: "50%",
+              right: "10px",
+              color: "#fff",
+              backgroundColor: "rgba(0,0,0,0.3)",
+            }}
+          >
+            <ArrowForwardIosIcon />
+          </IconButton>
+        </Box>
+
+        {/* Miniaturas Laterais */}
+        <Box
+          sx={{
+            flex: "1 1 35%",
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gridTemplateRows: "1fr 1fr",
+            gap: 1,
+          }}
+        >
+          {destaqueNoticias.slice(1, 5).map((item, i) => (
+            <Link
+              key={item?.id || i}
+              to={`/news/${item?.documentId || ""}`}
+              style={{ textDecoration: "none" }}
+            >
+              <Box
+                sx={{
+                  width: "100%",
+                  height: "100%",
+                  position: "relative",
+                  backgroundColor: "#000",
+                }}
+              >
+                <img
+                  src={item.cover?.url}
+                  alt="Miniatura"
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                  }}
+                />
+                <Box
+                  sx={{
+                    position: "absolute",
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    backgroundColor: "rgba(0,0,0,0.6)",
+                    color: "#fff",
+                    padding: "0.5rem",
+                    fontWeight: "bold",
+                    fontSize: "0.9rem",
+                  }}
+                >
+                  {item.title?.length > 60
+                    ? item.title.slice(0, 60) + "..."
+                    : item.title}
+                </Box>
+              </Box>
+            </Link>
+          ))}
+        </Box>
+      </Box>
+
+      {/* Lista de Notícias */}
+      <Box sx={{ display: "flex", flexWrap: "wrap" }}>
+        <Box sx={{ flex: 1, padding: "1rem" }}>
+          <Typography variant="h5" sx={{ mb: 2 }}>
+            Últimas notícias:
+          </Typography>
+
           {isLoading
             ? Array.from({ length: 3 }).map((_, i) => (
-                <Card key={i} sx={{ display: "flex", paddingBottom: 0 }}>
+                <Card key={i} sx={{ display: "flex", mb: 2 }}>
                   <Skeleton variant="rectangular" width={300} height={200} />
                   <CardContent sx={{ flex: 1 }}>
                     <Skeleton width="30%" />
@@ -245,66 +262,56 @@ export const Home = () => {
                   </CardContent>
                 </Card>
               ))
-            : jornalData?.data.data.map((item: any) => (
-                <Card key={item.id} sx={{ display: "flex", paddingBottom: 0 }}>
-                  <Link
-                    style={{ cursor: "pointer", color: "#000" }}
-                    to={`/news/${item?.documentId}`}
-                  >
+            : jornalData?.data?.data?.slice(5).map((item: any) => (
+                <Link
+                  to={`/news/${item?.documentId || ""}`}
+                  key={item?.id}
+                  style={{ textDecoration: "none" }}
+                >
+                  <Card sx={{ display: "flex", mb: 2 }}>
                     <CardMedia
                       component="img"
-                      sx={{
-                        width: "300px",
-                        height: "200px",
-                        objectFit: "cover",
-                      }}
-                      image={item?.cover?.url}
+                      sx={{ width: 300, height: 200, objectFit: "cover" }}
+                      image={item?.cover?.url || ""}
                       alt="news"
                     />
-                  </Link>
-                  <CardContent>
-                    {item?.categories.map((category: any, index: number) => (
+                    <CardContent>
+                      {item?.categories?.map((cat: any, idx: number) => (
+                        <Typography
+                          key={idx}
+                          variant="caption"
+                          color="primary"
+                          fontWeight="bold"
+                          sx={{ mr: 0.5 }}
+                        >
+                          {cat.name}
+                          {idx < item.categories.length - 1 ? "," : ""}
+                        </Typography>
+                      ))}
                       <Typography
-                        key={index}
-                        variant="caption"
-                        color="var(--pink)"
+                        variant="subtitle1"
                         fontWeight="bold"
-                        style={{ marginRight: "0.2rem" }}
+                        sx={{ mt: 1 }}
                       >
-                        {index === item.categories.length - 1
-                          ? category.name
-                          : `${category.name},`}
-                      </Typography>
-                    ))}
-
-                    <Link
-                      style={{ cursor: "pointer", color: "#000" }}
-                      to={`/news/${item?.documentId}`}
-                    >
-                      <Typography variant="subtitle1" fontWeight="bold">
-                        {item.title}
+                        {item?.title}
                       </Typography>
                       <Typography variant="body2" color="textSecondary">
-                        {item.description}
+                        {item?.description}
                       </Typography>
                       <Typography variant="body2" color="textSecondary">
-                        {convertToBrazilianDateWithHours(item.createdAt)}
+                        {convertToBrazilianDateWithHours(item?.createdAt)}
                       </Typography>
-                    </Link>
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
+                </Link>
               ))}
-        </section>
+        </Box>
 
         {/* Responsáveis */}
-        <Grid sx={{ padding: "1rem" }} item xs={12} md={6}>
+        <Grid sx={{ padding: "1rem", maxWidth: "400px" }} item xs={12} md={4}>
           <Card>
             <CardContent>
-              <Typography
-                variant="subtitle1"
-                fontWeight="bold"
-                color="var(--pink)"
-              >
+              <Typography variant="h6" fontWeight="bold" color="primary">
                 Responsáveis
               </Typography>
               <List dense>
@@ -331,7 +338,23 @@ export const Home = () => {
             </CardContent>
           </Card>
         </Grid>
-      </section>
+      </Box>
+
+      {/* Rodapé */}
+      <Box
+        sx={{
+          mt: 4,
+          p: 2,
+          backgroundColor: "#00529B",
+          color: "#fff",
+          textAlign: "center",
+        }}
+      >
+        <Typography variant="body2">
+          © {new Date().getFullYear()} O auto da capital. Todos os direitos
+          reservados.
+        </Typography>
+      </Box>
     </Box>
   );
 };

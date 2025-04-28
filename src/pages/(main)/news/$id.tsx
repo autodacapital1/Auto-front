@@ -3,35 +3,26 @@ import {
   AppBar,
   Toolbar,
   Typography,
-  IconButton,
   Box,
   Card,
   CardContent,
   CardMedia,
   Skeleton,
 } from "@mui/material";
-import NotificationsIcon from "@mui/icons-material/Notifications";
-import MenuIcon from "@mui/icons-material/Menu";
-
-
+import { useParams, Link } from "@tanstack/react-router";
 import { BlocksRenderer, type BlocksContent } from "@/components/index";
-import { useNavigate, useParams } from "@tanstack/react-router";
 import { useNews } from "@/hooks/newsByID";
 import { toast } from "sonner";
-
-import Icon from "@/assets/img/logo_visao.png";
 import { convertToBrazilianDateWithHours } from "@/utils/data";
 
 export const NewsById = () => {
   const { id } = useParams({ strict: false });
   const { newsData, loading } = useNews(id);
-  const navigate = useNavigate();
 
   const [mockContent, setMockContent] = useState<BlocksContent>([]);
   const [newsTitle, setNewsTitle] = useState("");
   const [newsDescription, setNewsDescription] = useState("");
   const [newsCreatedAt, setNewsCreatedAt] = useState("");
-  const [category, setCategory] = useState([]);
   const [imageUrl, setImageUrl] = useState("");
 
   useEffect(() => {
@@ -43,7 +34,6 @@ export const NewsById = () => {
       setNewsTitle(attributes.title);
       setNewsDescription(attributes.description);
       setNewsCreatedAt(attributes.createdAt);
-      setCategory(attributes.categories);
       setImageUrl(attributes.cover?.url || "");
       toast.success("Notícia carregada com sucesso!");
     }
@@ -52,53 +42,42 @@ export const NewsById = () => {
   return (
     <section
       style={{
-        background: "#F9F9F9",
-        height: "100%",
+        backgroundColor: "#F9F9F9",
+        minHeight: "100vh",
         width: "100%",
         boxSizing: "border-box",
       }}
     >
-      {/* Header */}
-      <AppBar position="static" color="default" elevation={1} sx={{ backgroundColor: "#282828" }}>
-        <Toolbar
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            minHeight: "80px",
-          }}
-        >
-          {/* Lado esquerdo */}
-          <Box>
-      <IconButton edge="start" color="inherit" onClick={() => console.log("Abrir menu")}>
-        <MenuIcon sx={{ color: "#fff" }} />
-      </IconButton>
-    </Box>
-
-          {/* Centro - Logo */}
-          <Box sx={{ flexGrow: 1, display: "flex", justifyContent: "center" }}>
-            <img
-              src={Icon}
-              alt="Logo"
-              onClick={() => navigate({ to: "/" })}
-              style={{
-                width: 150,
-                cursor: "pointer",
-              }}
-            />
-          </Box>
-
-          {/* Lado direito */}
-          <Box>
-            <IconButton edge="end" color="inherit" onClick={() => console.log("Notificação")}>
-              <NotificationsIcon sx={{ color: "#fff" }} />
-            </IconButton>
-          </Box>
-        </Toolbar>
-      </AppBar>
+      {/* Header no estilo da página principal */}
+      {/* Header com estilo da home, cor personalizada e sem "Anuncie aqui" */}
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          padding: "1rem 2rem",
+          backgroundColor: "#1a4b6f", // nova cor solicitada
+          borderBottom: "1px solid #ccc",
+        }}
+      >
+        {/* Letreiro clicável */}
+        <Link to="/" style={{ textDecoration: "none" }}>
+          <Typography
+            variant="h4"
+            sx={{
+              fontWeight: "bold",
+              color: "#fff",
+              fontFamily: "serif",
+              "& span": { color: "#00aaff" },
+            }}
+          >
+            <span>O auto da</span> capital
+          </Typography>
+        </Link>
+      </Box>
 
       {/* Main Content */}
-      <Box sx={{ paddingTop: 2}}>
+      <Box sx={{ paddingTop: 2 }}>
         {loading ? (
           <Card>
             <Skeleton variant="rectangular" height={200} />
@@ -114,7 +93,8 @@ export const NewsById = () => {
             sx={{
               display: "flex",
               flexDirection: "column",
-              overflowX: "hidden",
+              backgroundColor: "#fff",
+              boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
             }}
           >
             <CardMedia
@@ -126,26 +106,23 @@ export const NewsById = () => {
             />
             <CardContent
               sx={{
-                px: { xs: 2, sm: 4 }, // padding menor em telas pequenas
+                px: { xs: 2, sm: 4 },
                 py: 4,
-                width: '100%',
-                maxWidth: '800px',
-                mx: 'auto', // centraliza horizontalmente
+                width: "100%",
+                maxWidth: "800px",
+                mx: "auto",
               }}
             >
-
-              {/* Título da Notícia */}
               <Typography
                 variant="h5"
                 component="h1"
                 align="center"
                 fontWeight="bold"
-                sx={{ mb: 2 }}
+                sx={{ mb: 2, color: "#00529B" }}
               >
                 {newsTitle}
               </Typography>
 
-              {/* Descrição (subtítulo) */}
               {newsDescription && (
                 <Typography
                   variant="subtitle1"
@@ -157,19 +134,6 @@ export const NewsById = () => {
                 </Typography>
               )}
 
-              {/* Localização e Data */}
-              <Typography
-                variant="body2"
-                color="textSecondary"
-                align="center"
-                sx={{ mb: 3 }}
-              >
-                {`Daniela, DF, Brasília`}
-                <br />
-                {`Publicado em ${convertToBrazilianDateWithHours(newsCreatedAt)}`}
-              </Typography>
-
-              {/* Conteúdo da Notícia (CMS) */}
               <Box
                 sx={{
                   px: 4,
@@ -178,6 +142,7 @@ export const NewsById = () => {
                     fontSize: "1.1rem",
                     lineHeight: 1.8,
                     mb: 3,
+                    color: "#333",
                   },
                   "& iframe": {
                     width: "100% !important",
@@ -192,15 +157,15 @@ export const NewsById = () => {
                   blocks={{
                     paragraph: ({ children }: any) => {
                       const textContent =
-                        children?.map((child: any) => child.props.text).join("") ?? "";
-
+                        children
+                          ?.map((child: any) => child.props.text)
+                          .join("") ?? "";
                       const isIframe = /<\/?(iframe)/.test(textContent);
 
                       if (isIframe) {
                         return (
                           <div
                             dangerouslySetInnerHTML={{ __html: textContent }}
-                            style={{ width: "100%" }}
                           />
                         );
                       }
@@ -210,9 +175,84 @@ export const NewsById = () => {
                   }}
                 />
               </Box>
+
+              <Typography
+                variant="body2"
+                align="right"
+                sx={{ mt: 4, color: "#555" }}
+              >
+                {`Publicado em ${convertToBrazilianDateWithHours(newsCreatedAt)}`}
+              </Typography>
             </CardContent>
           </Card>
         )}
+      </Box>
+
+      {/* Rodapé institucional */}
+      <Box
+        component="footer"
+        sx={{
+          mt: 6,
+          pt: 4,
+          pb: 4,
+          px: 2,
+          backgroundColor: "#003366",
+          color: "#fff",
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", md: "row" },
+            justifyContent: "space-between",
+            maxWidth: "1200px",
+            margin: "0 auto",
+            gap: 4,
+          }}
+        >
+          <Box>
+            <Typography variant="h6" fontWeight="bold" gutterBottom>
+              Auto da Capital
+            </Typography>
+            <Typography variant="body2">
+              Sua fonte confiável de notícias locais e nacionais.
+            </Typography>
+          </Box>
+
+          <Box>
+            <Typography variant="h6" fontWeight="bold" gutterBottom>
+              Seções
+            </Typography>
+            <Typography variant="body2">Notícias</Typography>
+            <Typography variant="body2">Política</Typography>
+            <Typography variant="body2">Esportes</Typography>
+            <Typography variant="body2">Cultura</Typography>
+          </Box>
+
+          <Box>
+            <Typography variant="h6" fontWeight="bold" gutterBottom>
+              Institucional
+            </Typography>
+            <Typography variant="body2">Sobre nós</Typography>
+            <Typography variant="body2">Redação</Typography>
+            <Typography variant="body2">Contato</Typography>
+            <Typography variant="body2">Publicidade</Typography>
+          </Box>
+        </Box>
+
+        <Box
+          sx={{
+            borderTop: "1px solid #1a4b6f",
+            mt: 3,
+            pt: 2,
+            textAlign: "center",
+            fontSize: "0.875rem",
+            color: "#ccc",
+          }}
+        >
+          © {new Date().getFullYear()} Auto da Capital. Todos os direitos
+          reservados.
+        </Box>
       </Box>
     </section>
   );
