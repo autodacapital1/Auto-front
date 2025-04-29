@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   AppBar,
   Toolbar,
   Typography,
   Box,
-  Grid,
   Card,
   CardContent,
   CardMedia,
@@ -14,6 +13,7 @@ import {
   ListItemText,
   Skeleton,
   IconButton,
+  Grid,
 } from "@mui/material";
 import { useJornals } from "@/hooks/journals";
 import { Link } from "@tanstack/react-router";
@@ -21,11 +21,26 @@ import { convertToBrazilianDateWithHours } from "@/utils/data";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 
+interface NewsItem {
+  id: string;
+  documentId: string;
+  title: string;
+  description: string;
+  createdAt: string;
+  cover?: {
+    url: string;
+  };
+  categories?: {
+    name: string;
+  }[];
+}
+
 export const Home = () => {
-  const { jornalData, isLoading } = useJornals();
-  const destaqueNoticias = jornalData?.data?.data?.slice(0, 5) || [];
-  const outrasMiniaturas = jornalData?.data?.data?.slice(5, 11) || []; // Alterado para pegar até 6 notícias
+  const { jornalData, loading } = useJornals();
+  const destaqueNoticias = (jornalData?.data?.data || []) as NewsItem[];
+  const outrasMiniaturas = destaqueNoticias.slice(5, 11);
   const [carouselIndex, setCarouselIndex] = useState(0);
+
   const autores = [
     "Lyvia Martins",
     "João Vitor Teles",
@@ -138,17 +153,14 @@ export const Home = () => {
         <Box sx={{ flex: "1 1 65%", position: "relative" }}>
           {destaqueNoticias.length > 0 && (
             <Link
-              to={`/news/${destaqueNoticias[carouselIndex]?.documentId || ""}`}
+              to="/news/$id"
+              params={{ id: destaqueNoticias[carouselIndex]?.documentId }}
               style={{ textDecoration: "none" }}
             >
               <img
-                src={destaqueNoticias[carouselIndex].cover?.url}
+                src={destaqueNoticias[carouselIndex]?.cover?.url}
                 alt="Destaque"
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                }}
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
               />
               <Typography
                 variant="h6"
@@ -162,7 +174,7 @@ export const Home = () => {
                   borderRadius: "4px",
                 }}
               >
-                {destaqueNoticias[carouselIndex].title}
+                {destaqueNoticias[carouselIndex]?.title}
               </Typography>
             </Link>
           )}
@@ -205,7 +217,8 @@ export const Home = () => {
           {destaqueNoticias.slice(1, 5).map((item, i) => (
             <Link
               key={item?.id || i}
-              to={`/news/${item?.documentId || ""}`}
+              to="/news/$id"
+              params={{ id: item?.documentId }}
               style={{ textDecoration: "none" }}
             >
               <Box
@@ -217,7 +230,7 @@ export const Home = () => {
                 }}
               >
                 <img
-                  src={item.cover?.url}
+                  src={item?.cover?.url}
                   alt="Miniatura"
                   style={{
                     width: "100%",
@@ -238,7 +251,7 @@ export const Home = () => {
                     fontSize: "0.9rem",
                   }}
                 >
-                  {item.title?.length > 60
+                  {item?.title?.length > 60
                     ? item.title.slice(0, 60) + "..."
                     : item.title}
                 </Box>
@@ -255,7 +268,7 @@ export const Home = () => {
             Últimas notícias:
           </Typography>
 
-          {isLoading
+          {loading
             ? Array.from({ length: 3 }).map((_, i) => (
                 <Card key={i} sx={{ display: "flex", mb: 2 }}>
                   <Skeleton variant="rectangular" width={300} height={200} />
@@ -267,10 +280,11 @@ export const Home = () => {
                   </CardContent>
                 </Card>
               ))
-            : jornalData?.data?.data?.slice(5).map((item: any) => (
+            : outrasMiniaturas.map((item) => (
                 <Link
-                  to={`/news/${item?.documentId || ""}`}
                   key={item?.id}
+                  to="/news/$id"
+                  params={{ id: item?.documentId }}
                   style={{ textDecoration: "none" }}
                 >
                   <Card sx={{ display: "flex", mb: 2 }}>
@@ -281,7 +295,7 @@ export const Home = () => {
                       alt="news"
                     />
                     <CardContent>
-                      {item?.categories?.map((cat: any, idx: number) => (
+                      {item?.categories?.map((cat, idx) => (
                         <Typography
                           key={idx}
                           variant="caption"
@@ -290,7 +304,7 @@ export const Home = () => {
                           sx={{ mr: 0.5 }}
                         >
                           {cat.name}
-                          {idx < item.categories.length - 1 ? "," : ""}
+                          {idx < (item?.categories?.length ?? 0) - 1 ? "," : ""}
                         </Typography>
                       ))}
                       <Typography
@@ -313,35 +327,37 @@ export const Home = () => {
         </Box>
 
         {/* Responsáveis */}
-        <Grid sx={{ padding: "1rem", maxWidth: "400px" }} item xs={12} md={4}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" fontWeight="bold" color="primary">
-                Responsáveis
-              </Typography>
-              <List dense>
-                {[...autores, ...devs].map((item, index) => (
-                  <React.Fragment key={index}>
-                    <ListItem disablePadding>
-                      <ListItemText
-                        primary={
-                          <>
-                            <Typography component="span" color="primary">
-                              {index < autores.length
-                                ? "Autor"
-                                : "Desenvolvedor"}
-                            </Typography>{" "}
-                            {item}
-                          </>
-                        }
-                      />
-                    </ListItem>
-                    {index < autores.length + devs.length - 1 && <Divider />}
-                  </React.Fragment>
-                ))}
-              </List>
-            </CardContent>
-          </Card>
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={4}>
+            <Card>
+              <CardContent sx={{ padding: "1rem" }}>
+                <Typography variant="h6" fontWeight="bold" color="primary">
+                  Responsáveis
+                </Typography>
+                <List dense>
+                  {[...autores, ...devs].map((item, index) => (
+                    <div key={index}>
+                      <ListItem disablePadding>
+                        <ListItemText
+                          primary={
+                            <>
+                              <Typography component="span" color="primary">
+                                {index < autores.length
+                                  ? "Autor"
+                                  : "Desenvolvedor"}
+                              </Typography>{" "}
+                              {item}
+                            </>
+                          }
+                        />
+                      </ListItem>
+                      {index < autores.length + devs.length - 1 && <Divider />}
+                    </div>
+                  ))}
+                </List>
+              </CardContent>
+            </Card>
+          </Grid>
         </Grid>
       </Box>
 
