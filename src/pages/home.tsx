@@ -26,8 +26,13 @@ export const Home = () => {
   const destaqueNoticias = jornalData?.data?.data?.slice(0, 5) || [];
   const outrasMiniaturas = jornalData?.data?.data?.slice(5, 11) || []; // Alterado para pegar até 6 notícias
   const [carouselIndex, setCarouselIndex] = useState(0);
-  const autores = ["Ludmilla", "João Caetano", "Daniella Ribeiro", "Hugo"];
-  const devs = ["Walter Moura", "Alison"];
+  const autores = [
+    "Lyvia Martins",
+    "João Vitor Teles",
+    "Dáleth Aiello",
+    "Kaely S.",
+  ];
+  const devs = ["João Pedro"];
 
   useEffect(() => {
     const interval = setInterval(() => {
